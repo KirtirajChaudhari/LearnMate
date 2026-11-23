@@ -7,6 +7,8 @@ data/cache/
 results/*
 !results/retrieval_*.json
 !results/m0_smoke.json
+!results/m0_smoke_gpu_t4.json
+!results/colab_runs/
 !results/smoke/
 results/smoke/*
 !results/smoke/minicheck_parity.json
