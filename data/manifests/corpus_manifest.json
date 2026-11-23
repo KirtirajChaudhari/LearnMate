@@ -1,0 +1,22 @@
+{
+  "chunks_sha256": "c86ed73f84f96a99e0fa26e057187095729e9ba2cedc7235ff78917531b88263",
+  "chunks_with_code": 458,
+  "chunks_with_math": 659,
+  "commit": "23d7a5aecceee57d1292c56e90cce307f183bb0a",
+  "max_tokens": 400,
+  "mean_tokens": 267.5,
+  "n_chunks": 1242,
+  "n_sections": 654,
+  "per_chapter": {
+    "chapter_attention-mechanisms-and-transformers": 142,
+    "chapter_convolutional-modern": 151,
+    "chapter_convolutional-neural-networks": 77,
+    "chapter_linear-classification": 114,
+    "chapter_linear-regression": 112,
+    "chapter_multilayer-perceptrons": 99,
+    "chapter_optimization": 187,
+    "chapter_preliminaries": 121,
+    "chapter_recurrent-modern": 122,
+    "chapter_recurrent-neural-networks": 117
+  }
+}

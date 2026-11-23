@@ -1,0 +1,116 @@
+# LearnMate base configuration (frozen spec v1.0). All paths relative to repo root.
+project:
+  name: learnmate
+  seed: 13
+  bootstrap_seed: 2026
+
+paths:
+  raw: data/raw
+  processed: data/processed
+  manifests: data/manifests
+  annotations: data/annotations
+  cache: data/cache
+  models: models
+  results: results
+  frozen: configs/frozen
+
+corpus:
+  name: d2l-en
+  status: "PROVISIONAL - pending faculty approval (handbook sec. 10)"
+  repo_url: https://github.com/d2l-ai/d2l-en
+  commit: 23d7a5aecceee57d1292c56e90cce307f183bb0a
+  local_dir: data/raw/d2l-en
+  license: CC BY-SA 4.0 (text); modified MIT / MIT-0 (sample code)
+  attribution: "Zhang, Lipton, Li & Smola, Dive into Deep Learning (d2l.ai), CC BY-SA 4.0"
+  web_base: https://d2l.ai
+  code_framework: pytorch          # keep only `%%tab pytorch` / `%%tab all` code cells
+  indexed_chapters:                # the "course" (syllabus) subset
+    - chapter_preliminaries
+    - chapter_linear-regression
+    - chapter_linear-classification
+    - chapter_multilayer-perceptrons
+    - chapter_convolutional-neural-networks
+    - chapter_convolutional-modern
+    - chapter_recurrent-neural-networks
+    - chapter_recurrent-modern
+    - chapter_attention-mechanisms-and-transformers
+    - chapter_optimization
+  heldout_chapters:                # NOT indexed; source of out-of-syllabus (U2) questions (ADR-013)
+    - chapter_generative-adversarial-networks
+    - chapter_recommender-systems
+    - chapter_reinforcement-learning
+    - chapter_gaussian-processes
+    - chapter_hyperparameter-optimization
+    - chapter_natural-language-processing-pretraining
+    - chapter_computer-vision
+
+chunking:
+  max_tokens: 400
+  overlap_tokens: 50
+  min_tokens: 20
+  tokenizer: BAAI/bge-base-en-v1.5
+
+squad:
+  hf_dataset: rajpurkar/squad_v2
+  revision: 3ffb306f725f7d2ce8394bc1873b24868140c412
+  split_seed: 2026
+  gate_dev_articles: 22          # held out from train articles
+  cal_articles: 12               # from the 35 dev articles
+  test_articles: 23
+  rag_sample_per_split: 1500     # stratified 1:1 answerable:unanswerable
+
+retrieval:
+  bm25_k: 20
+  dense_k: 20
+  rrf_k: 60
+  rerank_top: 5
+  b1_dense_top: 5
+
+models:
+  embedder: {id: BAAI/bge-base-en-v1.5, revision: a5beb1e3e68b9ab74eb54cfd186867f64f240e1a,
+             query_prefix: "Represent this sentence for searching relevant passages: "}
+  reranker: {id: cross-encoder/ms-marco-MiniLM-L6-v2, revision: 233902d25c440f23af6f7d6e94d2946bac0bee0a}
+  generator: {id: Qwen/Qwen3-4B-Instruct-2507, revision: cdbee75f17c01a7cc42f958dc650907174af0554}
+  generator_gguf: {repo: unsloth/Qwen3-4B-Instruct-2507-GGUF, file: Qwen3-4B-Instruct-2507-Q4_K_M.gguf,
+                   revision: a06e946bb6b655725eafa393f4a9745d460374c9}
+  gate_base: {id: microsoft/deberta-v3-base, revision: 8ccc9b6f36199bec6961081d44eb72fb3f7353f3}
+  extractive_b0: {id: deepset/deberta-v3-base-squad2, revision: eea39c60cc305c2e4a9504f5ff117294bebb42db}
+  minicheck: {id: lytang/MiniCheck-Flan-T5-Large, revision: 96eafd01cee2d16cf81aaa2fb226b14f422a37b3}
+  nli: {id: MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli, revision: 6f5cf0a2b59cabb106aca4c287eed12e357e90eb}
+  evaluator_lettuce: {id: KRLabsOrg/lettucedect-large-modernbert-en-v1, revision: 22296c700ef0ba4ab3e5c9afffa0185caaf61e52}
+  # optional / fallback
+  generator_swap: {id: Qwen/Qwen2.5-7B-Instruct, revision: a09a35458c702b33eeacc393d103063234e8bc28}
+  generator_fallback: {id: microsoft/Phi-4-mini-instruct, revision: cfbefacb99257ffa30c83adab238a50856ac3083}
+
+generation:
+  backend: hf               # hf | llamacpp  (frozen in pre-registration; llamacpp = CPU demo only)
+  dtype: float16            # float16 | nf4 | float32 (CPU)
+  max_new_tokens: 320
+  max_input_tokens: 3072
+  prompt_version: P_v1
+
+gate:
+  max_length: 384
+  lr: 2.0e-5
+  epochs: 2
+  batch_size: 16
+  grad_accum: 1
+  warmup_ratio: 0.1
+  weight_decay: 0.01
+  fp16: true
+  target_pairs: 60000
+  mix: {positive: 0.4, squad_negative: 0.3, hard_negative: 0.3}
+  eval_every: 1000
+  aggregation: max_top2      # frozen on dev: max_top2 | concat_top3
+
+verification:
+  support_threshold: 0.5     # s_min
+  contradiction_pairs_top: 3
+  minicheck_max_len: 2048
+  minicheck_chunk_words: 500
+
+decision:
+  utility_lambda: 2.0        # pre-registered (ADR-014, pending instructor confirmation)
+  report_lambdas: [1.0, 2.0, 4.0]
+  coverage_margin_pp: 10     # pre-registered (ADR-014)
+  features: [gate_max, gate_top2, ce_top1, ce_margin, sup_min, sup_mean, pp_contra, sp_contra, uncited_frac]
