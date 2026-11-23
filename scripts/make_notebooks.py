@@ -8,7 +8,7 @@ SETUP = [
     "from google.colab import drive\ndrive.mount('/content/drive')",
     "%cd /content\n!git clone -b claude/wonderful-bohr-1idsaa https://github.com/KirtirajChaudhari/LearnMate.git || (cd LearnMate && git pull)\n%cd /content/LearnMate",
     "!pip -q install -e '.[gpu,eval,dev]'\n!nvidia-smi --query-gpu=name,memory.total --format=csv",
-    "# persist large/expensive artifacts on Drive (safe against directories that are tracked in git)\nimport os, shutil\nD = '/content/drive/MyDrive/learnmate'\nfor dst, sub in {'data/raw': 'data_raw', 'data/processed': 'data_processed', 'data/cache': 'data_cache', 'models': 'models', 'results': 'results'}.items():\n    os.makedirs(f'{D}/{sub}', exist_ok=True)\n    if os.path.islink(dst): os.remove(dst)\n    elif os.path.exists(dst): shutil.rmtree(dst)\n    os.makedirs(os.path.dirname(dst) or '.', exist_ok=True)\n    os.symlink(f'{D}/{sub}', dst)\nprint(os.listdir('/content/LearnMate/data'))",
+    "# persist large artifacts on Drive (idempotent; also repairs broken links from older versions of this cell)\n!python scripts/colab_setup.py",
     "!test -d data/raw/d2l-en || git clone https://github.com/d2l-ai/d2l-en.git data/raw/d2l-en\n!git -C data/raw/d2l-en checkout -q 23d7a5aecceee57d1292c56e90cce307f183bb0a\n!python -m learnmate.ingest --check\n!python scripts/build_squad.py",
 ]
 
