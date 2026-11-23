@@ -205,7 +205,15 @@ def main() -> None:
         write_jsonl(str(a.out).replace(".jsonl", "_KEY_DO_NOT_OPEN.jsonl"), key)
         print(f"{len(sheet)} outputs to judge -> {a.out}")
     elif a.cmd == "merge":
-        rows = merge_judgments(read_jsonl(a.sheet), read_jsonl(a.key))
+        sheet = read_jsonl(a.sheet)
+        from pathlib import Path as _P
+        verd = {}
+        for vf in sorted(_P(a.sheet).parent.glob("verdicts_*.jsonl")):
+            verd.update({r["output_id"]: r for r in read_jsonl(vf)})
+        for r in sheet:
+            if r["output_id"] in verd:
+                r["verdict"], r["judge"] = verd[r["output_id"]]["verdict"], verd[r["output_id"]]["judge"]
+        rows = merge_judgments(sheet, read_jsonl(a.key))
         write_jsonl(a.out, rows)
         print(f"{len(rows)} judgments -> {a.out}")
     elif a.cmd == "freeze":

@@ -7,6 +7,8 @@
     python scripts/review.py status
 
 Progress is saved after every answer; quit with q and resume any time.
+Each member writes ONLY their own files (decisions_X / labels_X / verdicts_X .jsonl), so git never conflicts.
+After `git pull`, run `python scripts/review.py apply` to merge everyone's work into course_items.jsonl.
 Needs data/processed/chunks.jsonl (committed to the repo) and data/annotations/course_items.jsonl.
 """
 from __future__ import annotations
@@ -43,6 +45,39 @@ def save(path: Path, rows: list[dict]) -> None:
         for r in rows:
             f.write(json.dumps(r, ensure_ascii=False, sort_keys=True) + "\n")
     os.replace(tmp, path)
+
+
+ANN = ROOT / "data/annotations"
+
+
+def overlay(items: list[dict]) -> list[dict]:
+    """Apply per-member decision/label files on top of course_items.jsonl (so two people never edit the same file)."""
+    by = {i["item_id"]: i for i in items}
+    for f in sorted(ANN.glob("decisions_*.jsonl")):
+        for r in load(f):
+            if r["item_id"] in by:
+                by[r["item_id"]].update(r["patch"])
+    for f in sorted(ANN.glob("labels_*.jsonl")):
+        for r in load(f):
+            if r["item_id"] in by:
+                by[r["item_id"]]["label_b"] = r["label_b"]
+    return items
+
+
+def load_items() -> list[dict]:
+    return overlay(load(ITEMS))
+
+
+def save_member(kind: str, member: str, store: dict) -> None:
+    """kind: decisions | labels. store maps item_id -> patch / label_b."""
+    key = "patch" if kind == "decisions" else "label_b"
+    save(ANN / f"{kind}_{member}.jsonl", [{"item_id": k, key: v} for k, v in sorted(store.items())])
+
+
+def load_member(kind: str, member: str) -> dict:
+    f = ANN / f"{kind}_{member}.jsonl"
+    key = "patch" if kind == "decisions" else "label_b"
+    return {r["item_id"]: r[key] for r in load(f)} if f.exists() else {}
 
 
 def toks(t: str) -> list[str]:
@@ -92,7 +127,8 @@ def show_chunk(c: dict, n=900, label=""):
 
 
 def cmd_verify(a):
-    items = load(ITEMS)
+    items = load_items()
+    mine = load_member("decisions", a.member)
     chunks = {c["chunk_id"]: c for c in load(CHUNKS)}
     bm = BM25([" ".join(c["section_path"]) + " " + c["text"] for c in chunks.values()])
     cl = list(chunks.values())
@@ -119,25 +155,22 @@ def cmd_verify(a):
         if k == "s":
             continue
         if k == "r":
-            it["status"] = "rejected"
+            mine[it["item_id"]] = {"status": "rejected", "verified_by": a.member}
         elif k == "e":
             q = input("  new question (enter = keep): ").strip()
             ra = input("  new reference answer (enter = keep): ").strip()
-            it["question"] = q or it["question"]
-            it["reference_answer"] = ra or it["reference_answer"]
-            it["edited_by_human"] = True
-            it["human_verified"] = True
-            it["verified_by"] = a.member
+            mine[it["item_id"]] = {"question": q or it["question"], "reference_answer": ra or it["reference_answer"],
+                                   "edited_by_human": True, "human_verified": True, "verified_by": a.member}
         else:
-            it["human_verified"] = True
-            it["verified_by"] = a.member
-        save(ITEMS, items)
-    save(ITEMS, items)
+            mine[it["item_id"]] = {"human_verified": True, "verified_by": a.member}
+        save_member("decisions", a.member, mine)
+    print(f"\nSaved to data/annotations/decisions_{a.member}.jsonl. Commit and push THAT file (not course_items.jsonl).")
     cmd_status(a)
 
 
 def cmd_second_label(a):
-    items = load(ITEMS)
+    items = load_items()
+    mine = load_member("labels", a.member)
     chunks = load(CHUNKS)
     bm = BM25([" ".join(c["section_path"]) + " " + c["text"] for c in chunks])
     todo = [i for i in items if i.get("author") != a.member and i.get("human_verified") and i.get("status") != "rejected"
@@ -161,9 +194,10 @@ def cmd_second_label(a):
                     gold.append(chunks[cand[int(tkn) - 1]]["chunk_id"])
                 elif tkn.startswith("c_"):
                     gold.append(tkn)
-        it["label_b"] = {"gold_state": {"s": "sufficient", "p": "partial", "i": "insufficient"}[s],
-                         "gold_chunk_ids": gold, "annotator": a.member}
-        save(ITEMS, items)
+        mine[it["item_id"]] = {"gold_state": {"s": "sufficient", "p": "partial", "i": "insufficient"}[s],
+                               "gold_chunk_ids": gold, "annotator": a.member}
+        save_member("labels", a.member, mine)
+    print(f"\nSaved to data/annotations/labels_{a.member}.jsonl. Commit and push THAT file.")
     cmd_status(a)
 
 
@@ -173,7 +207,9 @@ VERDICTS = {"c": "correct_supported", "p": "partially_correct", "i": "incorrect"
 def cmd_judge(a):
     sheet_path = Path(a.sheet)
     rows = load(sheet_path)
-    todo = [r for r in rows if r.get("verdict") is None and r.get("assigned_judge") in (None, a.member)]
+    vfile = sheet_path.parent / f"verdicts_{a.member}.jsonl"
+    done = {r["output_id"]: r for r in load(vfile)} if vfile.exists() else {}
+    todo = [r for r in rows if r["output_id"] not in done and r.get("assigned_judge") in (None, a.member)]
     print(f"{len(todo)} outputs to judge. You cannot see which system wrote each answer.\n"
           "  c = correct AND every claim is supported by the shown passages\n"
           "  p = correct but incomplete, or contains a minor detail the passages don't support\n"
@@ -190,19 +226,24 @@ def cmd_judge(a):
         v = ask("\n[c]orrect+supported  [p]artial  [i]ncorrect  [u]nsupported  [q]uit > ", "cpiuq")
         if v == "q":
             break
-        r["verdict"] = VERDICTS[v]
-        r["judge"] = a.member
-        save(sheet_path, rows)
-    save(sheet_path, rows)
-    print("judged:", sum(r.get("verdict") is not None for r in rows), "/", len(rows))
+        done[r["output_id"]] = {"output_id": r["output_id"], "verdict": VERDICTS[v], "judge": a.member}
+        save(vfile, list(done.values()))
+    print(f"judged by {a.member}: {len(done)} -> {vfile.name}. Commit and push that file.")
 
 
 def cmd_status(a):
-    items = load(ITEMS) if ITEMS.exists() else []
+    items = load_items() if ITEMS.exists() else []
     live = [i for i in items if i.get("status") != "rejected"]
     print("\nitems:", len(items), "| rejected:", len(items) - len(live), "| verified:", sum(bool(i.get("human_verified")) for i in live),
           "| second-labelled:", sum(bool(i.get("label_b")) for i in live))
     print("categories:", dict(Counter(i["category"] for i in live)), "| authors:", dict(Counter(i["author"] for i in live)))
+
+
+def cmd_apply(a):
+    """Write all members' decisions and labels into course_items.jsonl (run after `git pull`)."""
+    items = load_items()
+    save(ITEMS, items)
+    cmd_status(a)
 
 
 def main():
@@ -214,8 +255,9 @@ def main():
         if name == "judge":
             p.add_argument("--sheet", required=True)
     sub.add_parser("status")
+    sub.add_parser("apply")
     a = ap.parse_args()
-    {"verify": cmd_verify, "second-label": cmd_second_label, "judge": cmd_judge, "status": cmd_status}[a.cmd](a)
+    {"verify": cmd_verify, "second-label": cmd_second_label, "judge": cmd_judge, "status": cmd_status, "apply": cmd_apply}[a.cmd](a)
 
 
 if __name__ == "__main__":

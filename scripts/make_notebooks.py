@@ -58,7 +58,7 @@ NB_DEADLINE = ("Deadline profile: reduced end-to-end run", [
     "!python -m eval.run --split squad-cal --stages retrieve generate gate b0 verify assemble",
     "!python -m eval.calibrate --squad-cal results/runs/squad-cal__clean",
     "md:## STOP — Part 2 needs the frozen course items (git pull the verified `data/annotations/course_items.jsonl`, then `python -m learnmate.annotation freeze`) and `python scripts/freeze_prereg.py`.",
-    "!git pull -q --autostash\n!python -m learnmate.annotation validate\n!python -m learnmate.annotation assign-splits --all-split test\n!python -m learnmate.annotation kappa\n!python -m learnmate.annotation freeze\n!python scripts/freeze_prereg.py --dtype float16",
+    "!git pull -q --autostash\n!python scripts/review.py apply\n!python -m learnmate.annotation validate\n!python -m learnmate.annotation assign-splits --all-split test\n!python -m learnmate.annotation kappa\n!python -m learnmate.annotation freeze\n!python scripts/freeze_prereg.py --dtype float16",
     "md:## Part 2 — locked test runs (once)",
     "!python -m eval.run --split course-test --condition clean --stages retrieve generate gate b0 verify assemble --require-prereg\n!python -m eval.run --split course-test --condition S1 --stages retrieve generate gate b0 verify assemble --require-prereg\n!python -m eval.run --split squad-test --stages retrieve generate gate b0 verify assemble --require-prereg",
     "md:## Part 3 — blinded judging sheet (download `judge_test.jsonl`, judge with `python scripts/review.py judge`, upload the judged file back)",
