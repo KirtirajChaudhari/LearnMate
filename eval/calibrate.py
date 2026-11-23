@@ -25,7 +25,7 @@ from .metrics import aurc, brier, ece
 ABLATIONS = {
     "G": FEATURES,
     "A1_minus_verifier": ["gate_max", "gate_top2", "ce_top1", "ce_margin"],
-    "A2_minus_gate": ["ce_top1", "ce_margin", "sup_min", "sup_mean", "pp_contra", "sp_contra", "uncited_frac"],
+    "A2_minus_gate": ["ce_top1", "ce_margin", "sup_min", "sup_mean", "claim_conflict", "sp_contra", "uncited_frac"],
 }
 
 
@@ -111,16 +111,25 @@ def main():
     frozen["tau_b2"] = b2["tau"]
     report["B2"] = {"threshold": b2, "cal_aurc": aurc(np.where([r["can_answer"] for r in cc], ce, -1.0),
                                                       [r["error"] for r in cc])}
+    # B0 (extractive reference): threshold on the best span-vs-null margin, fitted on squad-cal (auto labels)
+    b0_rows = [r for r in sq if r.get("b0_answer")]
+    if b0_rows:
+        from .labels import b0_error
+        mg = np.array([r["b0_answer"]["margin"] for r in b0_rows])
+        ok = np.array([1 - b0_error(r) for r in b0_rows])
+        b0 = choose_threshold(mg, ok, [True] * len(b0_rows), lam)
+        frozen["tau_b0"] = b0["tau"]
+        report["B0"] = {"threshold": b0, "cal_aurc": aurc(mg, 1 - ok), "fitted_on": "squad-cal"}
     # kappa_c from dev S4 (constructed contradictions) vs dev clean: smallest threshold flagging no clean dev item
     kc = None
     if a.course_dev_s4:
         s4 = read_jsonl(Path(a.course_dev_s4) / "records.jsonl")
         clean_dir = Path(str(a.course_dev_s4).replace("__S4", "__clean"))
         cl = read_jsonl(clean_dir / "records.jsonl") if (clean_dir / "records.jsonl").exists() else []
-        clean_max = max((r["features"].get("pp_contra", 0.0) for r in cl), default=0.0)
-        s4_vals = sorted(r["features"].get("pp_contra", 0.0) for r in s4)
+        clean_max = max((r["features"].get("claim_conflict", 0.0) for r in cl), default=0.0)
+        s4_vals = sorted(r["features"].get("claim_conflict", 0.0) for r in s4)
         kc = float(min(0.99, max(0.5, clean_max + 1e-3)))
-        report["kappa_c"] = {"clean_dev_max_pp_contra": clean_max, "s4_dev_pp_contra": s4_vals,
+        report["kappa_c"] = {"clean_dev_max_claim_conflict": clean_max, "s4_dev_claim_conflict": s4_vals,
                              "s4_dev_recall": float(np.mean([v >= kc for v in s4_vals])) if s4_vals else None}
     frozen["kappa_c"] = kc
     frozen["fusion"] = frozen["variants"]["G"]

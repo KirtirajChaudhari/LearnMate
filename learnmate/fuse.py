@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-FEATURES = ["gate_max", "gate_top2", "ce_top1", "ce_margin", "sup_min", "sup_mean", "pp_contra", "sp_contra",
+FEATURES = ["gate_max", "gate_top2", "ce_top1", "ce_margin", "sup_min", "sup_mean", "claim_conflict", "sp_contra",
             "uncited_frac"]
 
 
@@ -123,4 +123,4 @@ def uncalibrated_mean_score(X: np.ndarray, lo: np.ndarray, hi: np.ndarray, inver
     return Z.mean(1)
 
 
-RISKY_FEATURES = {"pp_contra", "sp_contra", "uncited_frac"}
+RISKY_FEATURES = {"claim_conflict", "sp_contra", "uncited_frac"}

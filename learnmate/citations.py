@@ -13,6 +13,14 @@ from dataclasses import asdict, dataclass, field
 
 INSUFFICIENT_TOKEN = "INSUFFICIENT_EVIDENCE"
 
+# Conservative verbal-abstention patterns, matched against the FIRST sentence only (implementation_log D13).
+VERBAL_ABSTAIN_RE = re.compile(
+    r"^\s*(?:(?:the|these)\s+(?:provided\s+|given\s+|course\s+)?passages?\s+(?:do|does)\s+not\s+"
+    r"(?:state|contain|mention|provide|specify|say|include|define|describe|discuss|address|cover|explain|answer)"
+    r"|(?:this|the)(?:\s+question)?\s+cannot\s+be\s+answered"
+    r"|(?:there\s+is\s+)?(?:no|not\s+enough|insufficient)\s+(?:information|evidence)\s+(?:in|from)\s+the\s+(?:provided\s+)?passages"
+    r"|i\s+cannot\s+(?:answer|determine)|the\s+answer\s+(?:is\s+not|cannot\s+be)\s+(?:found|determined)"
+    r")", re.I)
 MARKER_RE = re.compile(r"\[\s*C\s*\d+(?:\s*[,;]\s*C?\s*\d+)*\s*\]", re.I)
 NUM_RE = re.compile(r"\d+")
 ABBREV = ("e.g.", "i.e.", "etc.", "vs.", "Fig.", "Eq.", "Sec.", "cf.", "approx.", "resp.", "w.r.t.")
@@ -88,6 +96,9 @@ def parse_answer(raw_answer: str, shown_chunk_ids: list[str]) -> tuple[bool, lis
     text = raw_answer.strip()
     if text.startswith(INSUFFICIENT_TOKEN) or text == "" or (
             INSUFFICIENT_TOKEN in text and len(MARKER_RE.findall(text)) == 0 and len(text) < 120):
+        return True, []
+    first = split_sentences(text)[:1]
+    if first and VERBAL_ABSTAIN_RE.search(MARKER_RE.sub("", first[0])):
         return True, []
     k = len(shown_chunk_ids)
     sentences: list[Sentence] = []

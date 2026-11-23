@@ -57,3 +57,11 @@ def s1_error_label(rec: dict, answer_set: str, judgments: dict | None) -> int | 
         if j is not None and j["verdict"] == "correct_supported":
             return 0
     return 1
+
+
+def b0_error(rec: dict) -> int:
+    """B0 extractive span error (SQuAD splits only): any span on an insufficient item, or a wrong span."""
+    ans = rec.get("b0_answer") or {}
+    if rec.get("gold_state") == "insufficient":
+        return 1
+    return 0 if auto_correct(ans.get("text", ""), rec.get("gold_answers") or []) else 1

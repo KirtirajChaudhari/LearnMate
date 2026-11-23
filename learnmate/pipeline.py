@@ -112,7 +112,7 @@ class LearnMate:
                     raise RuntimeError("no frozen fusion model (run eval/calibrate.py)")
                 p_safe = float(fm.predict_proba(np.array([[feats[f] for f in fm.features]]))[0])
                 decision = decide(llm_insufficient=insufficient, sentences=[s.to_dict() for s in sents],
-                                  p_safe=p_safe, tau=fm.tau, pp_contra=feats["pp_contra"],
+                                  p_safe=p_safe, tau=fm.tau, pp_contra=feats["claim_conflict"],
                                   kappa_c=self.frozen.kappa_c, s_min=self.frozen.s_min, ranked_ids=ids)
             timings["total"] = time.perf_counter() - t0
             return {"question": question, "system": system, "passages": passages,

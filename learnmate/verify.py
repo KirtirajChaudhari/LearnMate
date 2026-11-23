@@ -150,13 +150,40 @@ class Verifier:
             s.support = best_sup[s.idx] if s.citations else 0.0
             s.sp_contra = best_con[s.idx] if s.citations else 0.0
         pp = passage_contradiction(self.nli, [passage_text[c] for c in ranked_ids], self.contra_top)
-        return features_from_sentences(sentences, pp, self.s_min)
+        conflict = self.claim_conflict(sentences, [passage_text[c] for c in ranked_ids[: self.contra_top]])
+        feats = features_from_sentences(sentences, pp, self.s_min)
+        feats["claim_conflict"] = conflict
+        return feats
+
+    def claim_conflict(self, sentences: list[Sentence], passages: list[str]) -> float:
+        """max over sentences s and passage pairs i != j of min(support(s, p_i), P_contra(p_j -> s)).
+
+        High only when one top passage supports a claim while another contradicts it (evidence disagreement
+        on the claim itself), unlike whole-passage NLI which fires on merely different passages."""
+        if not sentences or len(passages) < 2:
+            return 0.0
+        docs, claims, own = [], [], []
+        for s in sentences:
+            for j, p in enumerate(passages):
+                docs.append(p); claims.append(s.text); own.append((s.idx, j))
+        sup = self.mc.score_pairs(docs, claims)
+        con = self.nli.contradiction(docs, claims)
+        S, C = {}, {}
+        for (si, j), a, b in zip(own, sup, con):
+            S[(si, j)], C[(si, j)] = float(a), float(b)
+        best = 0.0
+        for s in sentences:
+            for i in range(len(passages)):
+                for j in range(len(passages)):
+                    if i != j:
+                        best = max(best, min(S[(s.idx, i)], C[(s.idx, j)]))
+        return best
 
 
 def features_from_sentences(sentences: list[Sentence], pp_contra: float, s_min: float = 0.5) -> dict:
     if not sentences:
         return {"sup_min": 0.0, "sup_mean": 0.0, "frac_supported": 0.0, "pp_contra": float(pp_contra),
-                "sp_contra": 0.0, "uncited_frac": 1.0}
+                "sp_contra": 0.0, "uncited_frac": 1.0, "claim_conflict": 0.0}
     sup = [s.support or 0.0 for s in sentences]
     return {
         "sup_min": float(min(sup)),

@@ -17,7 +17,7 @@ from learnmate.config import load_config, repo_path
 from learnmate.fuse import FusionModel, feature_matrix, uncalibrated_mean_score
 from learnmate.io_utils import read_json, read_jsonl, stable_id, write_json
 
-from .labels import error_label, load_judgments, s1_error_label
+from .labels import b0_error, error_label, load_judgments, s1_error_label
 from .metrics import aurc, brier, ece, operating_point, reliability_table, risk_at_coverage, utility_at
 from .stats import clopper_pearson, holm, mcnemar_exact, paired_bootstrap
 
@@ -45,8 +45,11 @@ def system_scores(recs: list[dict], frozen: dict) -> dict[str, dict]:
             p = FusionModel.from_dict(d).predict_proba(X)
         ans = can & (p >= d["tau"])
         if kc is not None and name == "G":
-            ans &= np.array([r["features"].get("pp_contra", 0.0) < kc for r in recs])
+            ans &= np.array([r["features"].get("claim_conflict", 0.0) < kc for r in recs])
         out[name] = {"score": np.where(can, p, -np.inf), "can": can, "answered": ans, "prob": p}
+    if frozen.get("tau_b0") is not None and all(r.get("b0_answer") and r.get("gold_answers") is not None for r in recs):
+        mg = np.array([r["b0_answer"]["margin"] for r in recs])
+        out["B0"] = {"score": mg, "can": np.ones(len(recs), bool), "answered": mg >= frozen["tau_b0"], "own_errors": True}
     b1_can = np.array([not r["b1_llm_insufficient"] for r in recs])
     out["B1"] = {"score": None, "can": b1_can, "answered": b1_can}
     return out
@@ -76,7 +79,7 @@ def analyze(run_dir: Path, judgments_path: str | None, frozen: dict, cfg: dict, 
     m_pp = cfg["decision"]["coverage_margin_pp"] / 100.0
     res: dict = {"run": str(run_dir), "condition": condition, "n": n, "n_insufficient": int(gi.sum()), "systems": {}}
     for name, s in S.items():
-        e = err_b1 if name == "B1" else err_h
+        e = err_b1 if name == "B1" else (np.array([b0_error(r) for r in recs]) if name == "B0" else err_h)
         op = operating_point(s["answered"], e, gi, ans_correct if name != "B1" else (~gi) & (err_b1 == 0))
         k = op["n_errors_answered"]
         op["selective_risk_cp95"] = clopper_pearson(k, op["n_answered"])

@@ -47,3 +47,18 @@ def test_property_every_citation_resolves():
         sents = validate_resolvable(sents, set(IDS).__contains__)
         for x in sents:
             assert all(c in IDS for c in x.citations)
+
+
+def test_verbal_abstention_detected():
+    for t in ["The passages do not state what X is. Instead, they describe Y [C1].",
+              "The provided passages do not contain information about GANs.",
+              "This question cannot be answered from the passages.",
+              "There is not enough information in the passages to answer."]:
+        assert parse_answer(t, IDS)[0], t
+
+
+def test_verbal_abstention_not_overtriggered():
+    for t in ["The passages describe dropout as a regularizer [C1].",
+              "Dropout does not change the expected value of activations [C2].",
+              "The model does not use the passages directly; it uses attention [C3]."]:
+        assert not parse_answer(t, IDS)[0], t
