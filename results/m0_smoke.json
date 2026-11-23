@@ -1,0 +1,50 @@
+{
+  "b0_extractive": {
+    "margin": 17.050068348646164,
+    "ok": true,
+    "p_answer": 0.9999999606223873,
+    "peak_vram_gb": null,
+    "seconds": 0.89,
+    "text": " hidden units"
+  },
+  "embedder": {
+    "dim": 768,
+    "ok": true,
+    "peak_vram_gb": null,
+    "seconds": 1.11
+  },
+  "env": {
+    "cuda": false,
+    "faiss": "1.16.0",
+    "numpy": "2.5.5",
+    "platform": "Linux-6.18.44-fc-v726-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "sentence_transformers": "5.7.0",
+    "sklearn": "1.9.1",
+    "torch": "2.15.0+cu132",
+    "transformers": "4.57.6"
+  },
+  "gate_base": {
+    "ok": true,
+    "peak_vram_gb": null,
+    "seconds": 8.51
+  },
+  "minicheck": {
+    "ok": true,
+    "p_support": 0.9395586848258972,
+    "peak_vram_gb": null,
+    "seconds": 0.78
+  },
+  "nli": {
+    "ok": true,
+    "p_contra": 0.9982794523239136,
+    "peak_vram_gb": null,
+    "seconds": 0.82
+  },
+  "reranker": {
+    "logit": 2.444542407989502,
+    "ok": true,
+    "peak_vram_gb": null,
+    "seconds": 0.85
+  }
+}

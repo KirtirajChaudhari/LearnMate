@@ -1,0 +1,114 @@
+{
+  "backend": "llamacpp:Qwen3-4B-Instruct-2507-Q4_K_M.gguf",
+  "note": "CPU smoke only",
+  "records": [
+    {
+      "format_compliance": 1.0,
+      "insufficient": false,
+      "latency_s": 49.1,
+      "n_sentences": 4,
+      "question": "Why does dropout help reduce overfitting?",
+      "raw": "Dropout helps reduce overfitting by breaking up co-adaptation among neurons, which is a state where each layer relies on a specific pattern of activations from the previous layer [C3]. This is analogous to how sexual reproduction breaks up co-adapted genes [C3]. By randomly dropping out neurons during training, dropout prevents the network from relying too heavily on any single neuron or pattern of activations [C1][C3]. This regularization effect reduces overfitting by forcing the network to learn more robust and generalized features [C1][C2].",
+      "top": [
+        [
+          "c_c4d8a6e72a35",
+          "Multilayer Perceptrons > Dropout > Summary",
+          0.997
+        ],
+        [
+          "c_fff645a472db",
+          "Modern Convolutional Neural Networks > Deep Convolutional Neural Networks (AlexNet) > AlexNet > Capacity Control and Preprocessing",
+          0.991
+        ],
+        [
+          "c_6e2bb9e0449f",
+          "Multilayer Perceptrons > Dropout",
+          0.891
+        ],
+        [
+          "c_7f3fa55d8ac0",
+          "Linear Neural Networks for Regression > Generalization > Underfitting or Overfitting?",
+          0.195
+        ],
+        [
+          "c_34f93d435936",
+          "Optimization Algorithms > Learning Rate Scheduling > Summary",
+          0.15
+        ]
+      ],
+      "total_s": 50.3
+    },
+    {
+      "format_compliance": 0.3333333333333333,
+      "insufficient": false,
+      "latency_s": 42.4,
+      "n_sentences": 3,
+      "question": "What is the purpose of the forget gate in an LSTM?",
+      "raw": "The purpose of the forget gate in an LSTM is to determine how much of the old cell internal state should be retained. It decides whether to keep the current value of the memory or flush it. This allows the model to control the flow of information by retaining or discarding past states based on the input. [C1][C3][C4][C5]",
+      "top": [
+        [
+          "c_657289ff451a",
+          "Modern Recurrent Neural Networks > Long Short-Term Memory (LSTM) > Gated Memory Cell > Input Gate, Forget Gate, and Output Gate",
+          0.991
+        ],
+        [
+          "c_cbe4c1c9e63a",
+          "Modern Recurrent Neural Networks > Long Short-Term Memory (LSTM) > Summary",
+          0.989
+        ],
+        [
+          "c_c02908d0fda1",
+          "Modern Recurrent Neural Networks > Long Short-Term Memory (LSTM) > Gated Memory Cell > Memory Cell Internal State",
+          0.944
+        ],
+        [
+          "c_1306a6c11e13",
+          "Modern Recurrent Neural Networks > Long Short-Term Memory (LSTM) > Gated Memory Cell",
+          0.94
+        ],
+        [
+          "c_6cf7c3cd8b1f",
+          "Modern Recurrent Neural Networks > Long Short-Term Memory (LSTM) > Gated Memory Cell > Input Gate, Forget Gate, and Output Gate",
+          0.921
+        ]
+      ],
+      "total_s": 43.4
+    },
+    {
+      "format_compliance": 0.0,
+      "insufficient": true,
+      "latency_s": 30.7,
+      "n_sentences": 0,
+      "question": "How does a generative adversarial network train its discriminator?",
+      "raw": "INSUFFICIENT_EVIDENCE",
+      "top": [
+        [
+          "c_54724a31bf1e",
+          "Linear Neural Networks for Classification > Environment and Distribution Shift > A Taxonomy of Learning Problems > Control",
+          0.002
+        ],
+        [
+          "c_95593147a68d",
+          "Modern Convolutional Neural Networks > Residual Networks (ResNet) and ResNeXt > Summary and Discussion",
+          0.001
+        ],
+        [
+          "c_87df83629792",
+          "Attention Mechanisms and Transformers > Large-Scale Pretraining with Transformers > Decoder-Only > GPT and GPT-2",
+          0.001
+        ],
+        [
+          "c_5aac36e7a89f",
+          "Recurrent Neural Networks > Recurrent Neural Network Implementation from Scratch > Training",
+          0.0
+        ],
+        [
+          "c_e56217746379",
+          "Recurrent Neural Networks > Concise Implementation of Recurrent Neural Networks > Training and Predicting",
+          0.0
+        ]
+      ],
+      "total_s": 32.0
+    }
+  ]
+}
