@@ -41,7 +41,8 @@ def main() -> None:
             print(f"[heldout] {len(sections)} sections (NOT indexed; source for out-of-syllabus items)")
             continue
         ch = cfg["chunking"]
-        chunks = build_chunks(sections, count, cc, ch["max_tokens"], ch["overlap_tokens"], ch["min_tokens"])
+        chunks = build_chunks(sections, count, cc, ch["max_tokens"], ch["overlap_tokens"], ch["min_tokens"],
+                              access_date=cc.get("access_date"))
         store = ChunkStore(chunks)
         store.save(out_dir / "chunks.jsonl", out_dir / "chunks.sqlite")
         by_ch = Counter(c.chapter for c in chunks)

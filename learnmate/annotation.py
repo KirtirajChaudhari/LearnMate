@@ -117,21 +117,28 @@ def blind_sheet(items: list[dict], for_annotator: str) -> list[dict]:
 
 
 def judge_sheet(run_dir, items: list[dict], seed: int = 11, condition: str = "clean") -> tuple[list[dict], list[dict]]:
-    """Blinded judging sheet: system identity hidden, outputs shuffled; returns (sheet, private key)."""
+    """Blinded judging sheet: system identity hidden, outputs shuffled; returns (sheet, private key).
+
+    Outputs the system itself abstained on (INSUFFICIENT_EVIDENCE / verbal refusal) need no judgment and are skipped.
+    Each output is assigned to the member who did NOT author the item. Passage texts are embedded so judges can
+    work offline with scripts/review.py (stdlib only).
+    """
     recs = {r["item_id"]: r for r in read_jsonl(run_dir / "records.jsonl")}
+    ret = {r["item_id"]: r for r in read_jsonl(run_dir / "retrieval.jsonl")}
     by_id = {i["item_id"]: i for i in items}
     rows, key = [], []
     for iid, r in recs.items():
         it = by_id.get(iid, {})
-        for aset in ("hyb", "b1"):
+        for aset, rk in (("hyb", "hyb"), ("b1", "b1")):
             raw = r.get(f"{aset}_raw")
-            if raw is None:
+            if raw is None or r.get(f"{aset}_llm_insufficient"):
                 continue
             oid = f"o{len(rows):05d}"
-            ids = r[f"{aset}_ids"]
+            other = {"A": "B", "B": "A"}.get(it.get("author"))
             rows.append({"output_id": oid, "question": r["question"], "answer": raw,
-                         "passages": ids, "reference_answer": it.get("reference_answer"),
-                         "gold_state": it.get("gold_state"), "verdict": None, "sentence_labels": None, "judge": None})
+                         "passages": [{"chunk_id": p["chunk_id"], "text": p["text"]} for p in ret[iid][rk]],
+                         "reference_answer": it.get("reference_answer"), "gold_state": it.get("gold_state"),
+                         "assigned_judge": other, "verdict": None, "judge": None})
             key.append({"output_id": oid, "item_id": iid, "answer_set": aset, "condition": condition})
     order = list(range(len(rows)))
     random.Random(seed).shuffle(order)
@@ -154,6 +161,8 @@ def merge_judgments(sheet: list[dict], key: list[dict]) -> list[dict]:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("cmd", choices=["validate", "assign-splits", "blind-sheet", "kappa", "judge-sheet", "merge", "freeze"])
+    ap.add_argument("--all-split", default=None, choices=["dev", "cal", "test"],
+                    help="assign EVERY item to one split (deadline profile: all items are the locked test set)")
     ap.add_argument("--for", dest="for_annotator", default="B")
     ap.add_argument("--run", default=None)
     ap.add_argument("--sheet", default=None)
@@ -165,6 +174,8 @@ def main() -> None:
     ann = repo_path(cfg["paths"]["annotations"])
     path = ann / "course_items.jsonl"
     items = read_jsonl(path) if path.exists() else []
+    if a.cmd in ("kappa", "freeze", "validate"):
+        items = [i for i in items if i.get("status") != "rejected"]
     if a.cmd == "validate":
         probs = validate_items(items)
         for p in probs:
@@ -174,7 +185,12 @@ def main() -> None:
     elif a.cmd == "assign-splits":
         if (ann / "FROZEN").exists():
             raise SystemExit("items are frozen")
-        write_jsonl(path, assign_splits(items, cfg["project"]["seed"]))
+        if a.all_split:
+            for i in items:
+                i["split"] = a.all_split
+            write_jsonl(path, items)
+        else:
+            write_jsonl(path, assign_splits(items, cfg["project"]["seed"]))
         print(Counter(i["split"] for i in items))
     elif a.cmd == "blind-sheet":
         write_jsonl(a.out, blind_sheet(items, a.for_annotator))

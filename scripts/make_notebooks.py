@@ -8,7 +8,7 @@ SETUP = [
     "from google.colab import drive\ndrive.mount('/content/drive')",
     "%cd /content\n!git clone -b claude/wonderful-bohr-1idsaa https://github.com/KirtirajChaudhari/LearnMate.git || (cd LearnMate && git pull)\n%cd /content/LearnMate",
     "!pip -q install -e '.[gpu,eval,dev]'\n!nvidia-smi --query-gpu=name,memory.total --format=csv",
-    "# persist large/expensive artifacts on Drive\nimport os\nD='/content/drive/MyDrive/learnmate'\nfor sub in ['data_raw','data_processed','data_cache','models','results']:\n    os.makedirs(f'{D}/{sub}', exist_ok=True)\n!mkdir -p data && ln -sfn {D}/data_raw data/raw && ln -sfn {D}/data_processed data/processed && ln -sfn {D}/data_cache data/cache && ln -sfn {D}/models models && ln -sfn {D}/results results".replace("{D}", "$D"),
+    "# persist large/expensive artifacts on Drive (safe against directories that are tracked in git)\nimport os, shutil\nD = '/content/drive/MyDrive/learnmate'\nfor dst, sub in {'data/raw': 'data_raw', 'data/processed': 'data_processed', 'data/cache': 'data_cache', 'models': 'models', 'results': 'results'}.items():\n    os.makedirs(f'{D}/{sub}', exist_ok=True)\n    if os.path.islink(dst): os.remove(dst)\n    elif os.path.exists(dst): shutil.rmtree(dst)\n    os.makedirs(os.path.dirname(dst) or '.', exist_ok=True)\n    os.symlink(f'{D}/{sub}', dst)\nprint(os.listdir('/content/LearnMate/data'))",
     "!test -d data/raw/d2l-en || git clone https://github.com/d2l-ai/d2l-en.git data/raw/d2l-en\n!git -C data/raw/d2l-en checkout -q 23d7a5aecceee57d1292c56e90cce307f183bb0a\n!python -m learnmate.ingest --check\n!python scripts/build_squad.py",
 ]
 
@@ -46,6 +46,31 @@ NB = {
 }
 
 
+DEADLINE_SETUP = [c for c in SETUP]
+DEADLINE_SETUP[3] = "!pip -q install -e '.[gpu,dev]'\n!nvidia-smi --query-gpu=name,memory.total --format=csv"
+
+NB_DEADLINE = ("Deadline profile: reduced end-to-end run", [
+    "md:**Run the parts in order. Every stage is cached and resumable: after a disconnect, rerun the same cell.**\n\nPart 1 needs no human input.",
+    "md:## Part 1a — indices and the sufficiency gate",
+    "!python scripts/build_indices.py",
+    "!python -m learnmate.gate.train --out models/gate-v1 --pairs 24000 --epochs 1 --resume\n!cat models/gate-v1/train_log.json | head -40",
+    "md:## Part 1b — calibration-split run (SQuAD, 300 questions) and calibration",
+    "!python -m eval.run --split squad-cal --stages retrieve generate gate b0 verify assemble",
+    "!python -m eval.calibrate --squad-cal results/runs/squad-cal__clean",
+    "md:## STOP — Part 2 needs the frozen course items (git pull the verified `data/annotations/course_items.jsonl`, then `python -m learnmate.annotation freeze`) and `python scripts/freeze_prereg.py`.",
+    "!git pull -q --autostash\n!python -m learnmate.annotation validate\n!python -m learnmate.annotation assign-splits --all-split test\n!python -m learnmate.annotation kappa\n!python -m learnmate.annotation freeze\n!python scripts/freeze_prereg.py --dtype float16",
+    "md:## Part 2 — locked test runs (once)",
+    "!python -m eval.run --split course-test --condition clean --stages retrieve generate gate b0 verify assemble --require-prereg\n!python -m eval.run --split course-test --condition S1 --stages retrieve generate gate b0 verify assemble --require-prereg\n!python -m eval.run --split squad-test --stages retrieve generate gate b0 verify assemble --require-prereg",
+    "md:## Part 3 — blinded judging sheet (download `judge_test.jsonl`, judge with `python scripts/review.py judge`, upload the judged file back)",
+    "!python -m learnmate.annotation judge-sheet --run results/runs/course-test__clean --out data/annotations/judge_test.jsonl",
+    "md:After judging: `python -m learnmate.annotation merge --sheet data/annotations/judge_test.jsonl --key data/annotations/judge_test_KEY_DO_NOT_OPEN.jsonl --out data/annotations/judgments_test.jsonl`",
+    "!python -m learnmate.annotation merge --sheet data/annotations/judge_test.jsonl --key data/annotations/judge_test_KEY_DO_NOT_OPEN.jsonl --out data/annotations/judgments_test.jsonl\n!python -m eval.analyze --run results/runs/course-test__clean --judgments data/annotations/judgments_test.jsonl\n!python -m eval.analyze --run results/runs/course-test__S1\n!python -m eval.analyze --run results/runs/squad-test__clean\n!python scripts/make_figures.py",
+    "md:## Optional — live demo from Colab (for the recorded walkthrough)",
+    "!wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -O cloudflared && chmod +x cloudflared\nimport subprocess, time\nsubprocess.Popen(['streamlit','run','app/streamlit_app.py','--server.port','8501','--server.headless','true'])\nsubprocess.Popen(['./cloudflared','tunnel','--url','http://localhost:8501'], stdout=open('tunnel.log','w'), stderr=subprocess.STDOUT)\ntime.sleep(15)\n!grep -o 'https://[a-z0-9-]*[.]trycloudflare[.]com' tunnel.log | head -1",
+])
+NB["03_deadline_run.ipynb"] = NB_DEADLINE
+
+
 def cell(src):
     if src.startswith("md:"):
         return {"cell_type": "markdown", "metadata": {}, "source": src[3:]}
@@ -53,8 +78,9 @@ def cell(src):
 
 
 for name, (title, cells) in NB.items():
+    setup = DEADLINE_SETUP if name.startswith("03") else SETUP
     nb = {"nbformat": 4, "nbformat_minor": 5,
           "metadata": {"accelerator": "GPU", "colab": {"provenance": []}, "kernelspec": {"name": "python3", "display_name": "Python 3"}},
-          "cells": [cell(SETUP[0].format(title=title))] + [cell(c) for c in SETUP[1:]] + [cell(c) for c in cells]}
+          "cells": [cell(setup[0].format(title=title))] + [cell(c) for c in setup[1:]] + [cell(c) for c in cells]}
     Path("notebooks", name).write_text(json.dumps(nb, indent=1))
     print("wrote notebooks/" + name)

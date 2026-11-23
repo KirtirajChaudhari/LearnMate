@@ -23,6 +23,7 @@ corpus:
   license: CC BY-SA 4.0 (text); modified MIT / MIT-0 (sample code)
   attribution: "Zhang, Lipton, Li & Smola, Dive into Deep Learning (d2l.ai), CC BY-SA 4.0"
   web_base: https://d2l.ai
+  access_date: "2026-11-23"
   code_framework: pytorch          # keep only `%%tab pytorch` / `%%tab all` code cells
   indexed_chapters:                # the "course" (syllabus) subset
     - chapter_preliminaries
@@ -57,7 +58,7 @@ squad:
   gate_dev_articles: 22          # held out from train articles
   cal_articles: 12               # from the 35 dev articles
   test_articles: 23
-  rag_sample_per_split: 1500     # stratified 1:1 answerable:unanswerable
+  rag_sample_per_split: {squad-cal: 300, squad-test: 200}   # DEADLINE PROFILE (spec: 1500 each); stratified 1:1
 
 retrieval:
   bm25_k: 20

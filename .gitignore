@@ -1,5 +1,8 @@
 data/raw/
-data/processed/
+data/processed/*
+!data/processed/chunks.jsonl
+!data/processed/sections_heldout.jsonl
+!data/processed/NOTICE.md
 data/cache/
 results/*
 !results/retrieval_*.json

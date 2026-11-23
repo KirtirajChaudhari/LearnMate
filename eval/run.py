@@ -35,7 +35,8 @@ def load_split(split: str, cfg: dict) -> tuple[list[dict], str]:
     if not path.exists():
         raise SystemExit(f"{path} missing: course items are authored by the two annotators (see "
                          "research/dataset_and_annotation_plan.md and annotation/GUIDELINES.md)")
-    items = [i for i in read_jsonl(path) if i.get("split") == part and i.get("status", "final") == "final"]
+    items = [i for i in read_jsonl(path) if i.get("split") == part and i.get("status", "final") == "final"
+             and i.get("human_verified", True)]
     return items, "course"
 
 

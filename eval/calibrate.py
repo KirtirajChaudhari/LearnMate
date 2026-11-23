@@ -53,14 +53,15 @@ def swap_gate(recs, key):
     return out
 
 
-def fit_variant(name, feats, sq, cc, lam, report):
+def fit_variant(name, feats, sq, cc, lam, report, platt=True):
     fit_rows = [r for r in sq if r["can_answer"]]
     X = feature_matrix(fit_rows, feats)
     y = np.array([1 - r["error"] for r in fit_rows])
     fm = FusionModel(features=feats).fit(X, y)
     Xc = feature_matrix([r for r in cc if r["can_answer"]], feats)
     yc = np.array([1 - r["error"] for r in cc if r["can_answer"]])
-    fm.fit_platt(Xc, yc)
+    if platt:
+        fm.fit_platt(Xc, yc)
     s = np.array([fm.predict_proba(feature_matrix([r], feats))[0] if r["can_answer"] else -np.inf for r in cc])
     thr = choose_threshold(np.where(np.isfinite(s), s, -1.0), [1 - r["error"] for r in cc],
                            [r["can_answer"] for r in cc], lam)
@@ -77,29 +78,30 @@ def fit_variant(name, feats, sq, cc, lam, report):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--squad-cal", required=True)
-    ap.add_argument("--course-cal", required=True)
-    ap.add_argument("--judgments", required=True)
+    ap.add_argument("--course-cal", default=None, help="omit for the deadline profile: thresholds are fitted on squad-cal only")
+    ap.add_argument("--judgments", default=None)
     ap.add_argument("--course-dev-s4", default=None, help="dev S4 run used to set kappa_c (never test)")
     ap.add_argument("--allow-squad-as-course", action="store_true",
                     help="PIPELINE SMOKE ONLY: use squad-cal for the course-cal role (never for reported results)")
     a = ap.parse_args()
     cfg = load_config()
     lam = cfg["decision"]["utility_lambda"]
-    if "test" in a.squad_cal or "test" in a.course_cal:
+    if "test" in a.squad_cal or "test" in (a.course_cal or ""):
         raise SystemExit("calibration must not read test runs")
-    judg = load_judgments(a.judgments) if Path(a.judgments).exists() else None
+    judg = load_judgments(a.judgments) if a.judgments and Path(a.judgments).exists() else None
     sq = labelled(Path(a.squad_cal), None)
-    cc = labelled(Path(a.course_cal), judg)
+    use_course = a.course_cal is not None
+    cc = labelled(Path(a.course_cal), judg) if use_course else sq  # deadline profile: tau fitted on squad-cal (in-sample)
     if not cc:
         raise SystemExit("no labelled course-cal records (are judgments complete?)")
     report: dict = {"lambda": lam}
     frozen: dict = {"s_min": cfg["verification"]["support_threshold"], "lambda": lam, "variants": {}}
     for name, feats in ABLATIONS.items():
-        frozen["variants"][name] = fit_variant(name, feats, sq, cc, lam, report)
+        frozen["variants"][name] = fit_variant(name, feats, sq, cc, lam, report, platt=use_course)
     for name, key in (("A4_gate_noHN", "a4_gate"), ("A5_untrained_gate", "a5_gate")):
         sq2, cc2 = swap_gate(sq, key), swap_gate(cc, key)
         if sq2 and cc2:
-            frozen["variants"][name] = fit_variant(name, FEATURES, sq2, cc2, lam, report)
+            frozen["variants"][name] = fit_variant(name, FEATURES, sq2, cc2, lam, report, platt=use_course)
     # A3: uncalibrated normalized mean, tau = 0.5 (no fitting on outcomes)
     Xs = feature_matrix(sq, FEATURES)
     frozen["variants"]["A3_minus_calibration"] = {"features": FEATURES, "lo": Xs.min(0).tolist(),
@@ -133,9 +135,10 @@ def main():
                              "s4_dev_recall": float(np.mean([v >= kc for v in s4_vals])) if s4_vals else None}
     frozen["kappa_c"] = kc
     frozen["fusion"] = frozen["variants"]["G"]
+    frozen["profile"] = "full" if use_course else "deadline: fusion, tau and B2/B0 thresholds fitted on squad-cal only (no course-cal, no Platt)"
     frozen["inputs"] = {"squad_cal_records_sha256": sha256_file(Path(a.squad_cal) / "records.jsonl"),
-                        "course_cal_records_sha256": sha256_file(Path(a.course_cal) / "records.jsonl"),
-                        "judgments_sha256": sha256_file(a.judgments) if Path(a.judgments).exists() else None}
+                        "course_cal_records_sha256": sha256_file(Path(a.course_cal) / "records.jsonl") if use_course else None,
+                        "judgments_sha256": sha256_file(a.judgments) if a.judgments and Path(a.judgments).exists() else None}
     if a.allow_squad_as_course:
         frozen["SMOKE_ONLY"] = True
         out = repo_path(cfg["paths"]["results"]) / "smoke" / "thresholds_smoke.json"
