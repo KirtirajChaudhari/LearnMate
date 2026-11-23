@@ -15,9 +15,10 @@ def main():
     print("split counts:", man["split_counts"])
     dev = squad.load_split(raw / "validation.parquet")
     out = repo_path(cfg["paths"]["processed"]) / "squad_rag"
-    n = cfg["squad"]["rag_sample_per_split"]
+    nn = cfg["squad"]["rag_sample_per_split"]
     summary = {}
     for name in ("squad-cal", "squad-test"):
+        n = nn[name] if isinstance(nn, dict) else nn
         items, corpus = squad.rag_items(dev, man["splits"][name], n, cfg["squad"]["split_seed"], name)
         write_jsonl(out / f"{name}_items.jsonl", items)
         write_jsonl(out / f"{name}_corpus.jsonl", corpus)

@@ -1,5 +1,7 @@
 # LearnMate (G06) — Project Status
 
+> **Submission mode:** reduced, time-compressed run. Follow [`DEADLINE_RUNBOOK.md`](DEADLINE_RUNBOOK.md). Deliverable drafts: `submission/`. Deviations: `research/implementation_log.md` D16–D17.
+
 **Phase:** II (development) in progress. **Last updated:** 23 Nov 2026
 **Code status:** The full pipeline and evaluation harness are implemented and tested (35 passing tests). The pipeline runs end to end on real data, so far only as CPU smoke runs.
 **Blocked on:**

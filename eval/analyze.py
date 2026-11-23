@@ -117,6 +117,8 @@ def analyze(run_dir: Path, judgments_path: str | None, frozen: dict, cfg: dict, 
         if gi.any():
             res["H1b_hwsa_G_vs_B1"] = mcnemar_exact(~S["G"]["answered"][gi], ~S["B1"]["answered"][gi])
             res["H_vs_B2_hwsa"] = mcnemar_exact(~S["G"]["answered"][gi], ~S["B2"]["answered"][gi])
+    if condition != "clean":
+        res.pop("H1", None)  # H1 is registered for the clean course-test condition only
     return res
 
 

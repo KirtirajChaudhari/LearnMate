@@ -40,4 +40,6 @@ COURSE = ROOT / "data" / "annotations" / "course_items.jsonl"
 def test_course_items_section_disjoint():
     from learnmate.annotation import validate_items
     problems = validate_items(read_jsonl(COURSE), check_store=False)
-    assert not [p for p in problems if p["severity"] == "error"], problems[:5]
+    # verification status is a workflow state (checked at freeze); schema and leakage rules must hold at all times
+    errors = [p for p in problems if p["severity"] == "error" and "not human-verified" not in p["msg"]]
+    assert not errors, errors[:5]
