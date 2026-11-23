@@ -1,0 +1,12 @@
+{
+  "squad-cal": {
+    "answerable": 750,
+    "corpus_paragraphs": 360,
+    "items": 1500
+  },
+  "squad-test": {
+    "answerable": 750,
+    "corpus_paragraphs": 844,
+    "items": 1500
+  }
+}

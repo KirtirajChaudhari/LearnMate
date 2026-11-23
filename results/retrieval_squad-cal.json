@@ -1,0 +1,28 @@
+{
+  "dense": {
+    "mrr": 0.8244,
+    "n": 750,
+    "ndcg@10": 0.8603,
+    "recall@1": 0.728,
+    "recall@20": 0.988,
+    "recall@5": 0.9427
+  },
+  "hybrid_ce": {
+    "mrr": 0.9352,
+    "n": 750,
+    "ndcg@10": 0.9498,
+    "recall@1": 0.896,
+    "recall@20": 0.9987,
+    "recall@5": 0.988
+  },
+  "hybrid_rrf": {
+    "mrr": 0.8838,
+    "n": 750,
+    "ndcg@10": 0.9104,
+    "recall@1": 0.82,
+    "recall@20": 0.9987,
+    "recall@5": 0.968
+  },
+  "seconds_per_query": 0.849,
+  "split": "squad-cal"
+}

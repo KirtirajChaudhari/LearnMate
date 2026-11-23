@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "learnmate"
+version = "0.1.0"
+description = "LearnMate: evidence-grounded course AI tutor with a trained sufficiency gate and calibrated abstention (G06)"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+  "torch>=2.4",
+  "transformers>=4.51,<5",
+  "sentence-transformers>=3.0,<6",
+  "faiss-cpu>=1.8",
+  "rank-bm25>=0.2.2",
+  "scikit-learn>=1.4",
+  "scipy>=1.11",
+  "numpy>=1.26",
+  "pandas>=2.0",
+  "pyarrow>=14",
+  "pyyaml>=6",
+  "sentencepiece",
+  "protobuf",
+  "accelerate>=0.30",
+  "nltk>=3.8",
+  "tqdm",
+]
+
+[project.optional-dependencies]
+app = ["streamlit>=1.35"]
+gpu = ["bitsandbytes>=0.43"]
+cpu-llm = ["llama-cpp-python>=0.3"]
+pdf = ["docling>=2.0"]
+eval = ["lettucedetect>=0.2.3"]
+dev = ["pytest>=8"]
+
+[tool.setuptools.packages.find]
+include = ["learnmate*", "eval*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "models: tests that download/run real HF models (slow)",
+]
