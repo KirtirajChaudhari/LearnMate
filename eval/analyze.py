@@ -55,12 +55,12 @@ def system_scores(recs: list[dict], frozen: dict) -> dict[str, dict]:
     return out
 
 
-def analyze(run_dir: Path, judgments_path: str | None, frozen: dict, cfg: dict, condition: str) -> dict:
+def analyze(run_dir: Path, judgments_path: str | None, frozen: dict, cfg: dict, condition: str, strict: bool = True) -> dict:
     if not (run_dir / "records.jsonl").exists():
         raise SystemExit(f"{run_dir}/records.jsonl not found: that run has not completed. Run: python scripts/where_am_i.py")
     recs = read_jsonl(run_dir / "records.jsonl")
     judg = load_judgments(judgments_path) if judgments_path and Path(judgments_path).exists() else None
-    lab = s1_error_label if condition == "S1" else (lambda r, s, j: error_label(r, s, condition, j))
+    lab = s1_error_label if condition == "S1" else (lambda r, s, j: error_label(r, s, condition, j, strict=strict))
     keep = []
     for r in recs:
         eh, eb = lab(r, "hyb", judg), lab(r, "b1", judg)
@@ -131,6 +131,8 @@ def main():
     ap.add_argument("--frozen", default=None)
     ap.add_argument("--condition", default=None)
     ap.add_argument("--out", default=None)
+    ap.add_argument("--lenient", action="store_true",
+                    help="pre-registered SENSITIVITY analysis: partially_correct counts as correct (primary analysis is strict)")
     a = ap.parse_args()
     cfg = load_config()
     run = Path(a.run)
@@ -140,10 +142,11 @@ def main():
     frozen = read_json(a.frozen or repo_path(cfg["paths"]["frozen"]) / "thresholds.json")
     if frozen.get("SMOKE_ONLY") and "smoke" not in str(run):
         raise SystemExit("smoke thresholds cannot be used for a real run")
-    res = analyze(run, a.judgments, frozen, cfg, cond)
+    res = analyze(run, a.judgments, frozen, cfg, cond, strict=not a.lenient)
+    res["error_definition"] = "lenient (sensitivity)" if a.lenient else "strict (primary)"
     if "H1" in res and not run.name.startswith("course-test"):
         res["note"] = "H1 is defined on course-test only; this is a secondary/diagnostic analysis"
-    out = Path(a.out) if a.out else run / "analysis.json"
+    out = Path(a.out) if a.out else run / ("analysis_lenient.json" if a.lenient else "analysis.json")
     write_json(out, res)
     for k, v in res["systems"].items():
         print(f"{k:22s}", {kk: (round(vv, 4) if isinstance(vv, float) else vv) for kk, vv in v.items()
