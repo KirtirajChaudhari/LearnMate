@@ -118,6 +118,7 @@ def main() -> None:
         step, best, history = st["step"], st["best"], st["history"]
         print(f"resumed at step {step}")
 
+    start_step = step
     rng = np.random.default_rng(cfg["project"]["seed"])
     order = np.concatenate([rng.permutation(len(tr)) for _ in range(math.ceil(epochs) + 1)])
     if device == "cuda":
@@ -156,6 +157,10 @@ def main() -> None:
                 model.save_pretrained(out / "best"); tok.save_pretrained(out / "best")
             torch.save({"model": model.state_dict(), "opt": opt.state_dict(), "sched": sched.state_dict(),
                         "step": step, "best": best, "history": history}, state_path)
+    if step == start_step and (out / "train_log.json").exists():
+        # a resume of an already-finished run does no training: do NOT overwrite the real timing/throughput log
+        print(f"no training steps were run (already at step {step}/{total}); keeping the existing train_log.json")
+        return
     secs = time.perf_counter() - t0
     log = {
         "base_model": base, "base_revision": revision, "device": device,
