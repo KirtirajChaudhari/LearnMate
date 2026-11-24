@@ -28,6 +28,8 @@ This log records every implementation decision that refines or departs from the 
 
 | D18 | C6 / logging | `models/gate-v1/train_log.json` timing is **invalid**: the training cell was re-run with `--resume` after finishing, so a zero-step run overwrote it (implied 0.001 s, `gpu_minutes: 0.0`, `examples_per_sec` 2.4e7, VRAM 2.96 GB measured after loading, not during training). Fixed: a resume that trains no steps no longer overwrites the log. Gate training time and peak training VRAM are therefore **not measured**; report only a wall-clock figure read from the Colab cell duration if available, otherwise "not measured". The gate itself is unaffected (best checkpoint, dev AUROC from the preserved history) | Logging only | None |
 
+| D19 | Pre-registration | The pre-registration file was **regenerated** at 2026-11-24 01:55:09 UTC (code commit 68a6bdc), replacing the first one written at 01:43:21 UTC (code commit 4aee8ba). Between those commits only `scripts/where_am_i.py` changed (no file under `eval/`, `learnmate/` or `configs/`). A first attempt at the clean course-test run had started in between (retrieval completed, generation begun) and was interrupted; its outputs were never inspected or judged, and generations are cached by deterministic keys. Items hash (b87927b0...) and hypotheses are identical | Process disclosure only | None. State this in the paper's limitations |
+
 ## Measured so far (CPU container, 4 vCPU, no GPU)
 
 | Fact | Value | Source |
