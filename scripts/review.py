@@ -175,28 +175,44 @@ def cmd_second_label(a):
     bm = BM25([" ".join(c["section_path"]) + " " + c["text"] for c in chunks])
     todo = [i for i in items if i.get("author") != a.member and i.get("human_verified") and i.get("status") != "rejected"
             and not i.get("label_b")]
-    print(f"{len(todo)} items to label blind (you do NOT see the other member's labels). "
-          "Decide whether the INDEXED course passages answer the question.")
+    print(f"{len(todo)} items to label blind (you do NOT see the other member's labels).\n"
+          "For each question, read the candidate passages and decide whether the INDEXED course text answers it.\n"
+          "Many questions are NOT answered by the course text (they ask for a fact or a topic that is absent): "
+          "answer n for those. Keys here differ from `verify`: y / p / n / q.")
+    streak = []
     for n, it in enumerate(todo, 1):
         print("\n" + "=" * 100)
         print(f"({n}/{len(todo)}) {it['item_id']}\nQ: {it['question']}\n")
         cand = bm.top(it["question"], 6)
         for j, i in enumerate(cand, 1):
             show_chunk(chunks[i], 650, label=f"#{j} ")
-        s = ask("\nCourse text: [s]ufficient / [p]artial (only part answered) / [i]nsufficient / [q]uit > ", "spiq")
+        s = ask("\nDo the passages above ANSWER this question?\n"
+                "  [y] yes, fully   [p] only part of it   [n] no / not covered by these passages   [q] quit > ", "ypnq")
         if s == "q":
             break
         gold: list[str] = []
-        if s in "sp":
-            raw = input("  supporting passages (numbers like 1,3 | 0 = none of these | chunk ids): ").strip()
-            for tkn in re.split(r"[,\s]+", raw):
-                if tkn.isdigit() and 1 <= int(tkn) <= len(cand):
-                    gold.append(chunks[cand[int(tkn) - 1]]["chunk_id"])
-                elif tkn.startswith("c_"):
-                    gold.append(tkn)
-        mine[it["item_id"]] = {"gold_state": {"s": "sufficient", "p": "partial", "i": "insufficient"}[s],
-                               "gold_chunk_ids": gold, "annotator": a.member}
+        if s in "yp":
+            while True:
+                raw = input("  which passage numbers contain the answer (e.g. 1,3)? (0 = none -> then it should be 'n') : ").strip()
+                for tkn in re.split(r"[,\s]+", raw):
+                    if tkn.isdigit() and 1 <= int(tkn) <= len(cand):
+                        gold.append(chunks[cand[int(tkn) - 1]]["chunk_id"])
+                    elif tkn.startswith("c_"):
+                        gold.append(tkn)
+                if gold:
+                    break
+                if raw.strip() == "0":
+                    print("  you said no passage contains the answer: switching this label to 'n'")
+                    s = "n"
+                    break
+        state = {"y": "sufficient", "p": "partial", "n": "insufficient"}[s]
+        print(f"  -> recorded: {state.upper()}")
+        mine[it["item_id"]] = {"gold_state": state, "gold_chunk_ids": gold, "annotator": a.member}
         save_member("labels", a.member, mine)
+        streak.append(s)
+        if len(streak) >= 8 and len(set(streak[-8:])) == 1:
+            print(f"\n  !! You have given '{streak[-1]}' 8 times in a row. Check that each passage really answers its question; "
+                  "about 40% of these questions are NOT answered by the course text.")
     print(f"\nSaved to data/annotations/labels_{a.member}.jsonl. Commit and push THAT file.")
     cmd_status(a)
 
