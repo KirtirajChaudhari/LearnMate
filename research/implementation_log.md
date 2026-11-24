@@ -30,6 +30,8 @@ This log records every implementation decision that refines or departs from the 
 
 | D19 | Pre-registration | The pre-registration file was **regenerated** at 2026-11-24 01:55:09 UTC (code commit 68a6bdc), replacing the first one written at 01:43:21 UTC (code commit 4aee8ba). Between those commits only `scripts/where_am_i.py` changed (no file under `eval/`, `learnmate/` or `configs/`). A first attempt at the clean course-test run had started in between (retrieval completed, generation begun) and was interrupted; its outputs were never inspected or judged, and generations are cached by deterministic keys. Items hash (b87927b0...) and hypotheses are identical | Process disclosure only | None. State this in the paper's limitations |
 
+| D20 | Annotation | **First attempt at blind second labels is invalid and was discarded.** Both members labelled all 57 items "sufficient" (kappa 0.0, raw agreement 50.9%), picked about one passage each, and matched the author's gold passage in only 2 of 57 items; out-of-syllabus items (GANs, RL, ...) were labelled sufficient. Likely cause: `s` means *skip* in `verify` but *sufficient* in `second-label`. The tool now uses y / p / n, echoes the recorded label, requires a passage for y/p, and warns after 8 identical labels. The first-attempt files remain in git history (commits fdfe2d7, 07e2a55) | Independence check for the evaluation set; to be redone before either member judges | If not redone blind, the paper must state that independent second labelling was not achieved |
+
 ## Measured so far (CPU container, 4 vCPU, no GPU)
 
 | Fact | Value | Source |
