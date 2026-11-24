@@ -225,6 +225,9 @@ def cmd_judge(a):
     rows = load(sheet_path)
     vfile = sheet_path.parent / f"verdicts_{a.member}.jsonl"
     done = {r["output_id"]: r for r in load(vfile)} if vfile.exists() else {}
+    for oid in [x.strip() for x in getattr(a, "redo", "").split(",") if x.strip()]:
+        if done.pop(oid, None) is not None:
+            print(f"re-judging {oid} (earlier verdict removed from your file)")
     todo = [r for r in rows if r["output_id"] not in done and r.get("assigned_judge") in (None, a.member)]
     sug_path = sheet_path.parent / "suggestions_test.jsonl"
     sugg = {r["output_id"]: r for r in load(sug_path)} if sug_path.exists() else {}
@@ -297,6 +300,7 @@ def main():
         p.add_argument("--member", required=True, choices=["A", "B"])
         if name == "judge":
             p.add_argument("--sheet", required=True)
+            p.add_argument("--redo", default="", help="comma-separated output_ids to re-judge (removes your earlier verdict for them)")
     sub.add_parser("status")
     sub.add_parser("apply")
     a = ap.parse_args()
