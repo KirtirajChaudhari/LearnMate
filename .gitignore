@@ -1,9 +1,9 @@
-data/raw/
+data/raw
 data/processed/*
 !data/processed/chunks.jsonl
 !data/processed/sections_heldout.jsonl
 !data/processed/NOTICE.md
-data/cache/
+data/cache
 results/*
 !results/retrieval_*.json
 !results/m0_smoke.json
@@ -13,10 +13,11 @@ results/*
 results/smoke/*
 !results/smoke/minicheck_parity.json
 !results/smoke/generation_smoke.json
-models/
+models
 .venv/
 __pycache__/
 *.pyc
 .pytest_cache/
 .env
 *.egg-info/
+configs/frozen

@@ -4,6 +4,19 @@
 
 Times are relative to when you start (T+0). Total: about 10 h of work for each of you spread over about 20 h, with most GPU time unattended. **A** and **B** are the two group members. If anything fails, paste me the exact error and I'll fix it.
 
+## If a Colab session has the old setup (error: `... is beyond a symbolic link`, or `where_am_i.py` not found)
+Paste this as a new cell. It repairs the Drive links without losing your indices or runs, then updates the code:
+```python
+%cd /content/LearnMate
+!git fetch -q origin claude/wonderful-bohr-1idsaa
+!git show FETCH_HEAD:scripts/colab_setup.py > scripts/colab_setup.py
+!python scripts/colab_setup.py
+!git checkout -- scripts/colab_setup.py
+!git pull -q --autostash
+!pip -q install streamlit
+!python scripts/where_am_i.py
+```
+
 ## T+0: start the GPU immediately (one person, ~45 min of waiting)
 1. Colab → File → Open notebook → GitHub → `KirtirajChaudhari/LearnMate`, branch `claude/wonderful-bohr-1idsaa`. If the repo is private, put a read-only token in the clone URL. Runtime → **T4 GPU**.
 2. Run `notebooks/00_smoke_colab.ipynb` top to bottom. It writes `results/m0_smoke.json` (VRAM and speed per model; it tells us fp16 vs NF4).
