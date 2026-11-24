@@ -56,6 +56,8 @@ def system_scores(recs: list[dict], frozen: dict) -> dict[str, dict]:
 
 
 def analyze(run_dir: Path, judgments_path: str | None, frozen: dict, cfg: dict, condition: str) -> dict:
+    if not (run_dir / "records.jsonl").exists():
+        raise SystemExit(f"{run_dir}/records.jsonl not found: that run has not completed. Run: python scripts/where_am_i.py")
     recs = read_jsonl(run_dir / "records.jsonl")
     judg = load_judgments(judgments_path) if judgments_path and Path(judgments_path).exists() else None
     lab = s1_error_label if condition == "S1" else (lambda r, s, j: error_label(r, s, condition, j))
@@ -133,6 +135,8 @@ def main():
     cfg = load_config()
     run = Path(a.run)
     cond = a.condition or run.name.split("__")[-1].split("_")[0]
+    if not (run / "records.jsonl").exists():
+        raise SystemExit(f"{run}/records.jsonl not found: that run has not completed. Run: python scripts/where_am_i.py")
     frozen = read_json(a.frozen or repo_path(cfg["paths"]["frozen"]) / "thresholds.json")
     if frozen.get("SMOKE_ONLY") and "smoke" not in str(run):
         raise SystemExit("smoke thresholds cannot be used for a real run")
