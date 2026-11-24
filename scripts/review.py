@@ -226,6 +226,12 @@ def cmd_judge(a):
     vfile = sheet_path.parent / f"verdicts_{a.member}.jsonl"
     done = {r["output_id"]: r for r in load(vfile)} if vfile.exists() else {}
     todo = [r for r in rows if r["output_id"] not in done and r.get("assigned_judge") in (None, a.member)]
+    sug_path = sheet_path.parent / "suggestions_test.jsonl"
+    sugg = {r["output_id"]: r for r in load(sug_path)} if sug_path.exists() else {}
+    if sugg:
+        print("AI-assisted mode: an AI assistant prepared a SUGGESTED verdict for each output (from the blinded sheet only).\n"
+              "You are the judge: read the passages and the answer, then press ENTER to accept the suggestion, or type c/p/i/u to override.\n"
+              "Your acceptance or override is recorded (ai_suggested / overridden) and must be disclosed in the paper.\n")
     print(f"{len(todo)} outputs to judge. You cannot see which system wrote each answer.\n"
           "  c = correct AND every claim is supported by the shown passages\n"
           "  p = correct but incomplete, or contains a minor detail the passages don't support\n"
@@ -239,10 +245,31 @@ def cmd_judge(a):
         for k, p in enumerate(r["passages"], 1):
             print(f"   [C{k}] {p.get('section_path', '')}: {short(p['text'], 600)}")
         print("\nANSWER:\n" + textwrap.indent(r["answer"], "   "))
-        v = ask("\n[c]orrect+supported  [p]artial  [i]ncorrect  [u]nsupported  [q]uit > ", "cpiuq")
+        sg = sugg.get(r["output_id"])
+        if sg:
+            print(f"\n  AI suggestion: [{sg['suggested']}] {VERDICTS[sg['suggested']]}  -- {sg['reason']}")
+            prompt = f"\nENTER = accept [{sg['suggested']}]   or type [c]/[p]/[i]/[u] to override   [q]uit > "
+            while True:
+                try:
+                    raw = input(prompt).strip().lower()
+                except EOFError:
+                    raw = "q"
+                if raw == "":
+                    v = sg["suggested"]
+                    break
+                if raw[0] in "cpiuq":
+                    v = raw[0]
+                    break
+                print("   press ENTER or choose one of: c/p/i/u/q")
+        else:
+            v = ask("\n[c]orrect+supported  [p]artial  [i]ncorrect  [u]nsupported  [q]uit > ", "cpiuq")
         if v == "q":
             break
-        done[r["output_id"]] = {"output_id": r["output_id"], "verdict": VERDICTS[v], "judge": a.member}
+        row = {"output_id": r["output_id"], "verdict": VERDICTS[v], "judge": a.member}
+        if sg:
+            row["ai_suggested"] = VERDICTS[sg["suggested"]]
+            row["overridden"] = v != sg["suggested"]
+        done[r["output_id"]] = row
         save(vfile, list(done.values()))
     print(f"judged by {a.member}: {len(done)} -> {vfile.name}. Commit and push that file.")
 

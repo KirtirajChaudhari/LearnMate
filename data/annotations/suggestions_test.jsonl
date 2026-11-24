@@ -1,0 +1,72 @@
+{"output_id": "o00049", "suggested": "p", "reason": "Core right (LR increases to its maximum) but adds claims about random initialization / very deep networks that the passages do not state. CHECK passages.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00052", "suggested": "c", "reason": "v = EWMA of gradients (momentum), s = EWMA of squared gradients, contrasted with Adagrad's sum. Last sentence mildly generic.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00067", "suggested": "c", "reason": "Gives the covered part (reset + update gate) and says the course gives no per-epoch timing.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00066", "suggested": "c", "reason": "Covered part correct; the uncovered part is signalled only by INSUFFICIENT_EVIDENCE.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00031", "suggested": "c", "reason": "Linear-projection / rotation statement matches the passage.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00030", "suggested": "c", "reason": "Same as the other positional-encoding answer. CHECK the last sentence against the passages.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00062", "suggested": "c", "reason": "Residual mapping correct; says the top-5 error is not in the passages.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00042", "suggested": "c", "reason": "beta1=0.9, beta2=0.999; v momentum, s second moment.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00011", "suggested": "p", "reason": "Correct (stability, LogSumExp) but adds 'improves efficiency / simplifies implementation', not in the passages. CHECK.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00006", "suggested": "c", "reason": "1/(1-beta) stated correctly. CHECK the last (truncated) sentence.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00026", "suggested": "c", "reason": "Clipping fixes exploding, not vanishing gradients; matches passage.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00043", "suggested": "c", "reason": "Same as other beta1/beta2 answer.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00022", "suggested": "c", "reason": "Two gates: reset and update.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00037", "suggested": "c", "reason": "Variance statement exactly as in the passage; extra sentences are generic.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00036", "suggested": "c", "reason": "Correct; Xavier variance formula appears in the course text.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00061", "suggested": "u", "reason": "States 'the original Transformer uses 8 heads': not in the passages (true in the real world, but unsupported by the course).", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00016", "suggested": "c", "reason": "Divides by sqrt(d); variance remark is in the course text.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00007", "suggested": "c", "reason": "Effective number 1/(1-beta).", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00046", "suggested": "c", "reason": "Concatenation of forward/backward outputs; equations match.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00069", "suggested": "p", "reason": "Covered part right and flags the missing FLOP count, but adds 'generally more effective for object recognition', not in the passages.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00027", "suggested": "c", "reason": "No; clipping addresses exploding gradients only; 'hack' wording is in the course.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00017", "suggested": "c", "reason": "sqrt(d) scaling; variance remark supported.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00013", "suggested": "i", "reason": "Says p_h = 4 and p_w = 1; the correct padding is (2, 1) per side, i.e. 4 and 2 in total. The width value is wrong.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00008", "suggested": "c", "reason": "Bias often not regularized.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00035", "suggested": "c", "reason": "Local minima of convex functions are global.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00032", "suggested": "c", "reason": "Max pooling preferred; 2x2 window.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00055", "suggested": "c", "reason": "Sigmoid culprit; ReLU mitigates.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00021", "suggested": "c", "reason": "O(t^-1/2) learning rate; per-coordinate.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00063", "suggested": "c", "reason": "Ends with padding (2, 1), the right answer; explanation is slightly muddled but supported.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00053", "suggested": "c", "reason": "Same content as the other Adam/Adagrad answer. CHECK the last sentence.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00018", "suggested": "c", "reason": "m*p*q elements per channel.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00014", "suggested": "c", "reason": "Residual mapping g(x)=f(x)-x, g=0 for the identity.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00045", "suggested": "c", "reason": "Concatenation + learned projection W_o; per-head projections described.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00058", "suggested": "c", "reason": "Applied after the convolution, before the nonlinearity, per channel; says the proposer is not specified.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00020", "suggested": "c", "reason": "Same as the other Adagrad answer.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00029", "suggested": "c", "reason": "Perplexity = exp of average negative log-likelihood.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00001", "suggested": "c", "reason": "Co-adaptation.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00015", "suggested": "c", "reason": "Residual block explanation matches passage.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00064", "suggested": "c", "reason": "Clipping vs exploding gradients correct; says the threshold is not specified.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00054", "suggested": "c", "reason": "Sigmoid / ReLU.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00003", "suggested": "c", "reason": "Keep or flush the memory; equation matches passage.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00004", "suggested": "c", "reason": "Sigmoid, range (0, 1).", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00033", "suggested": "c", "reason": "Max pooling, 2x2.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00000", "suggested": "c", "reason": "Co-adaptation.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00048", "suggested": "p", "reason": "Core right but adds 'random initialization can lead to significant divergence', not in the passages; omits the cool-down. CHECK passages.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00010", "suggested": "c", "reason": "Underflow/overflow and LogSumExp. CHECK the last sentences against the passages.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00050", "suggested": "c", "reason": "Three gates vs two; correct.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00039", "suggested": "c", "reason": "Decoder initialised from the encoder's final hidden state; same layers/hidden units.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00047", "suggested": "c", "reason": "Concatenation of forward/backward hidden states.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00041", "suggested": "c", "reason": "Beam size k; keeps k best candidates.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00028", "suggested": "c", "reason": "Perplexity definition correct.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00025", "suggested": "c", "reason": "Reset gate controls how much previous state to remember; extras supported.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00038", "suggested": "p", "reason": "Correct that it uses the encoder's final state, but 'in some designs ... in other designs' is vague and not in the passages. CHECK.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00002", "suggested": "c", "reason": "Keep or flush the memory.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00040", "suggested": "c", "reason": "Beam size k.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00044", "suggested": "c", "reason": "Heads concatenated and linearly projected with W_o.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00056", "suggested": "c", "reason": "VGG 3x3 vs NiN 1x1 after the first convolution.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00051", "suggested": "c", "reason": "LSTM three gates, GRU two.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00034", "suggested": "p", "reason": "Core right, but 'does not guarantee a unique global minimum' is not clearly in the passages. CHECK.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00005", "suggested": "c", "reason": "Sigmoid; range (0, 1).", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00009", "suggested": "c", "reason": "Bias usually not regularized.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00019", "suggested": "c", "reason": "m*p*q elements per channel.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00012", "suggested": "c", "reason": "Padding (2, 1) correct.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00068", "suggested": "p", "reason": "Covered part right and flags the missing FLOP count, but adds 'more effective for object recognition', not in the passages.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00060", "suggested": "u", "reason": "Says 'the original Transformer uses 4-head attention': 4 heads is the course's demo model, not the original paper (8 heads). Unsupported and wrong for the question.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00070", "suggested": "c", "reason": "Adagrad O(t^-1/2); says the proposer is not specified.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00023", "suggested": "c", "reason": "Two gates; sigmoid; roles.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00024", "suggested": "c", "reason": "Reset gate role correct.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00065", "suggested": "c", "reason": "Clipping vs exploding gradients; flags missing threshold.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00059", "suggested": "c", "reason": "Applied after the convolution, per channel; flags missing proposer.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00071", "suggested": "c", "reason": "Adagrad rate; flags missing proposer.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
+{"output_id": "o00057", "suggested": "c", "reason": "VGG vs NiN convolutions.", "suggested_by": "AI assistant (Claude), from the blinded sheet only"}
