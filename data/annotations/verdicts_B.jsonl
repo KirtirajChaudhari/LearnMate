@@ -1,12 +1,8 @@
-{"ai_suggested": "partially_correct", "judge": "B", "output_id": "o00049", "overridden": true, "verdict": "correct_supported"}
 {"ai_suggested": "correct_supported", "judge": "B", "output_id": "o00052", "overridden": false, "verdict": "correct_supported"}
 {"ai_suggested": "correct_supported", "judge": "B", "output_id": "o00037", "overridden": false, "verdict": "correct_supported"}
 {"ai_suggested": "correct_supported", "judge": "B", "output_id": "o00036", "overridden": false, "verdict": "correct_supported"}
-{"ai_suggested": "unsupported", "judge": "B", "output_id": "o00061", "overridden": true, "verdict": "correct_supported"}
 {"ai_suggested": "correct_supported", "judge": "B", "output_id": "o00016", "overridden": false, "verdict": "correct_supported"}
-{"ai_suggested": "partially_correct", "judge": "B", "output_id": "o00069", "overridden": true, "verdict": "correct_supported"}
 {"ai_suggested": "correct_supported", "judge": "B", "output_id": "o00017", "overridden": false, "verdict": "correct_supported"}
-{"ai_suggested": "incorrect", "judge": "B", "output_id": "o00013", "overridden": true, "verdict": "correct_supported"}
 {"ai_suggested": "correct_supported", "judge": "B", "output_id": "o00008", "overridden": false, "verdict": "correct_supported"}
 {"ai_suggested": "correct_supported", "judge": "B", "output_id": "o00032", "overridden": false, "verdict": "correct_supported"}
 {"ai_suggested": "correct_supported", "judge": "B", "output_id": "o00021", "overridden": false, "verdict": "correct_supported"}
@@ -19,7 +15,6 @@
 {"ai_suggested": "correct_supported", "judge": "B", "output_id": "o00004", "overridden": false, "verdict": "correct_supported"}
 {"ai_suggested": "correct_supported", "judge": "B", "output_id": "o00033", "overridden": false, "verdict": "correct_supported"}
 {"ai_suggested": "correct_supported", "judge": "B", "output_id": "o00000", "overridden": false, "verdict": "correct_supported"}
-{"ai_suggested": "partially_correct", "judge": "B", "output_id": "o00048", "overridden": true, "verdict": "correct_supported"}
 {"ai_suggested": "correct_supported", "judge": "B", "output_id": "o00041", "overridden": false, "verdict": "correct_supported"}
 {"ai_suggested": "correct_supported", "judge": "B", "output_id": "o00028", "overridden": false, "verdict": "correct_supported"}
 {"ai_suggested": "correct_supported", "judge": "B", "output_id": "o00025", "overridden": false, "verdict": "correct_supported"}
@@ -29,9 +24,14 @@
 {"ai_suggested": "correct_supported", "judge": "B", "output_id": "o00005", "overridden": false, "verdict": "correct_supported"}
 {"ai_suggested": "correct_supported", "judge": "B", "output_id": "o00009", "overridden": false, "verdict": "correct_supported"}
 {"ai_suggested": "correct_supported", "judge": "B", "output_id": "o00012", "overridden": false, "verdict": "correct_supported"}
-{"ai_suggested": "partially_correct", "judge": "B", "output_id": "o00068", "overridden": true, "verdict": "correct_supported"}
-{"ai_suggested": "unsupported", "judge": "B", "output_id": "o00060", "overridden": true, "verdict": "correct_supported"}
 {"ai_suggested": "correct_supported", "judge": "B", "output_id": "o00024", "overridden": false, "verdict": "correct_supported"}
 {"ai_suggested": "correct_supported", "judge": "B", "output_id": "o00065", "overridden": false, "verdict": "correct_supported"}
 {"judge": "B", "output_id": "o00074", "verdict": "correct_supported"}
 {"ai_suggested": "correct_supported", "judge": "B", "output_id": "o00057", "overridden": false, "verdict": "correct_supported"}
+{"ai_suggested": "partially_correct", "judge": "B", "output_id": "o00049", "overridden": false, "verdict": "partially_correct"}
+{"ai_suggested": "unsupported", "judge": "B", "output_id": "o00061", "overridden": true, "verdict": "partially_correct"}
+{"ai_suggested": "partially_correct", "judge": "B", "output_id": "o00069", "overridden": false, "verdict": "partially_correct"}
+{"ai_suggested": "incorrect", "judge": "B", "output_id": "o00013", "overridden": true, "verdict": "partially_correct"}
+{"ai_suggested": "partially_correct", "judge": "B", "output_id": "o00048", "overridden": false, "verdict": "partially_correct"}
+{"ai_suggested": "partially_correct", "judge": "B", "output_id": "o00068", "overridden": false, "verdict": "partially_correct"}
+{"ai_suggested": "unsupported", "judge": "B", "output_id": "o00060", "overridden": true, "verdict": "partially_correct"}
