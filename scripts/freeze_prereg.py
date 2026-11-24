@@ -71,7 +71,9 @@ course-test x {{clean, S1}}; squad-test x clean. Systems B1, B2, G, A1, A2, A3, 
 """
     out = repo_path("research/preregistration.md")
     out.write_text(text)
-    print("wrote", out)
+    import shutil
+    shutil.copyfile(thr, repo_path("research/frozen_thresholds.json"))   # committable copy (configs/frozen may be a Drive link)
+    print("wrote", out, "and research/frozen_thresholds.json: commit both after the test runs")
 
 
 if __name__ == "__main__":

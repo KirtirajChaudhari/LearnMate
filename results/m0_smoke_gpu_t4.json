@@ -1,0 +1,68 @@
+{
+  "_source": "Colab T4 run of scripts/smoke_models.py, extracted from results/colab_runs/00_smoke_colab_executed.ipynb (cell 7)",
+  "b0_extractive": {
+    "margin": 17.050088495016098,
+    "ok": true,
+    "p_answer": 0.9999999606231806,
+    "peak_vram_gb": 0.755,
+    "seconds": 8.25,
+    "text": " hidden units"
+  },
+  "embedder": {
+    "dim": 768,
+    "ok": true,
+    "peak_vram_gb": 0.448,
+    "seconds": 8.18
+  },
+  "env": {
+    "cuda": true,
+    "faiss": "1.16.0",
+    "gpu": "Tesla T4",
+    "numpy": "2.4.6",
+    "platform": "Linux-6.6.159+-x86_64-with-glibc2.39",
+    "python": "3.13.16",
+    "sentence_transformers": "5.7.0",
+    "sklearn": "1.6.1",
+    "torch": "2.14.1+cu130",
+    "transformers": "4.57.6"
+  },
+  "gate_base": {
+    "ok": true,
+    "peak_vram_gb": 0.009,
+    "seconds": 5.52
+  },
+  "generator_fp16": {
+    "latency_s": 1.62,
+    "new_tokens": 14,
+    "ok": true,
+    "peak_vram_gb": 8.13,
+    "seconds": 148.26,
+    "text": "Dropout zeroes hidden units at random during training [C1]."
+  },
+  "generator_nf4": {
+    "latency_s": 1.69,
+    "new_tokens": 14,
+    "ok": true,
+    "peak_vram_gb": 4.025,
+    "seconds": 33.16,
+    "text": "Dropout zeroes hidden units at random during training [C1]."
+  },
+  "minicheck": {
+    "ok": true,
+    "p_support": 0.939558744430542,
+    "peak_vram_gb": 3.299,
+    "seconds": 65.22
+  },
+  "nli": {
+    "ok": true,
+    "p_contra": 0.9982794523239136,
+    "peak_vram_gb": 0.757,
+    "seconds": 7.45
+  },
+  "reranker": {
+    "logit": 2.4445419311523438,
+    "ok": true,
+    "peak_vram_gb": 0.1,
+    "seconds": 2.76
+  }
+}

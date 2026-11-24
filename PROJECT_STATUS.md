@@ -3,6 +3,7 @@
 > **Submission mode:** reduced, time-compressed run. Follow [`DEADLINE_RUNBOOK.md`](DEADLINE_RUNBOOK.md). Deliverable drafts: `submission/`. Deviations: `research/implementation_log.md` D16–D17.
 
 **Phase:** II (development) in progress. **Last updated:** 23 Nov 2026
+**GPU check (Colab T4): done.** All models run; fp16 generator peaks at 8.13 GB, so the evaluation runtime is frozen to fp16 (`results/m0_smoke_gpu_t4.json`).
 **Code status:** The full pipeline and evaluation harness are implemented and tested (35 passing tests). The pipeline runs end to end on real data, so far only as CPU smoke runs.
 **Blocked on:**
 1. A GPU runtime for reportable runs.

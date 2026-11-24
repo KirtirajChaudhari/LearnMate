@@ -200,11 +200,16 @@ def main() -> None:
         print(rep)
     elif a.cmd == "judge-sheet":
         from pathlib import Path
+        if not (Path(a.run) / "records.jsonl").exists():
+            raise SystemExit(f"{a.run}/records.jsonl not found: the locked test runs have not completed (they refuse to start "
+                             "until research/preregistration.md says STATUS: FROZEN). Run: python scripts/where_am_i.py")
         sheet, key = judge_sheet(Path(a.run), items, condition=a.condition)
         write_jsonl(a.out, sheet)
         write_jsonl(str(a.out).replace(".jsonl", "_KEY_DO_NOT_OPEN.jsonl"), key)
         print(f"{len(sheet)} outputs to judge -> {a.out}")
     elif a.cmd == "merge":
+        if not Path(a.sheet).exists():
+            raise SystemExit(f"{a.sheet} not found: create it with `judge-sheet` first (needs the completed test runs). Run: python scripts/where_am_i.py")
         sheet = read_jsonl(a.sheet)
         from pathlib import Path as _P
         verd = {}
